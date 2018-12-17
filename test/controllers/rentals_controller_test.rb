@@ -6,11 +6,11 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       movie = movies(:one)
       customer = customers(:two)
 
-      post check_out_url(title: movie.title), params: {
+      post check_out_path(title: movie.title), params: {
         customer_id: customer.id,
         due_date: Date.today + 1
       }
-      assert_response :success
+      must_respond_with :success
 
       # Reload from DB
       Movie.find(movie.id).customers.must_include Customer.find(customer.id)
@@ -20,21 +20,21 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       movie = movies(:one)
       customer = customers(:two)
 
-      post check_out_url(title: movie.title), params: {
+      post check_out_path(title: movie.title), params: {
         customer_id: customer.id,
         due_date: Date.today + 1
       }
-      assert_response :success
+      must_respond_with :success
 
       Movie.find(movie.id).rentals.last.checkout_date.must_equal Date.today
     end
 
     it "requires a valid movie title" do
-      post check_out_url(title: "does not exist"), params: {
+      post check_out_path(title: "does not exist"), params: {
         customer_id: customers(:two).id,
         due_date: Date.today + 1
       }
-      assert_response :not_found
+      must_respond_with :not_found
       data = JSON.parse @response.body
       data.must_include "errors"
       data["errors"].must_include "title"
@@ -44,11 +44,11 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       bad_customer_id = 13371337
       Customer.find_by(id: bad_customer_id).must_be_nil
 
-      post check_out_url(title: movies(:one).title), params: {
+      post check_out_path(title: movies(:one).title), params: {
         customer_id: bad_customer_id,
         due_date: Date.today + 1
       }
-      assert_response :not_found
+      must_respond_with :not_found
       data = JSON.parse @response.body
       data.must_include "errors"
       data["errors"].must_include "customer_id"
@@ -56,11 +56,11 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
 
     it "requires a due-date in the future" do
       # Obvious case: actually in the past
-      post check_out_url(title: movies(:one).title), params: {
+      post check_out_path(title: movies(:one).title), params: {
         customer_id: customers(:two).id,
         due_date: Date.today - 1
       }
-      assert_response :bad_request
+      must_respond_with :bad_request
       data = JSON.parse @response.body
       data.must_include "errors"
       data["errors"].must_include "due_date"
@@ -80,21 +80,53 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
     end
 
     it "marks a rental complete" do
-      post check_in_url(title: @rental.movie.title), params: {
+      post check_in_path(title: @rental.movie.title), params: {
         customer_id: @rental.customer.id
       }
-      assert_response :success
+      must_respond_with :success
 
       @rental.reload
 
       @rental.returned.must_equal true
     end
 
+    it "can check out a rental and return it" do 
+      # Arrange
+      Rental.destroy_all
+      customer = Customer.first
+      movie = Movie.first
+
+      post check_out_path(title: movie.title), params: {
+        customer_id:  customer.id,
+        due_date:     Date.today + 5
+      }
+
+      # Act
+
+      post check_in_path(title: movie.title), params: {
+        customer_id: customer.id
+      }
+
+      must_respond_with :success
+
+      rental = Rental.first
+
+      expect(rental.customer_id).must_equal customer.id
+      expect(rental.movie_id).must_equal movie.id
+      expect(rental.due_date).must_equal Date.today + 5
+      expect(rental.returned).must_equal true
+
+
+      
+
+
+    end
+     
     it "requires a valid movie title" do
-      post check_in_url(title: "does not exist"), params: {
+      post check_in_path(title: "does not exist"), params: {
         customer_id: @rental.customer.id
       }
-      assert_response :not_found
+      must_respond_with :not_found
       data = JSON.parse @response.body
       data.must_include "errors"
       data["errors"].must_include "title"
@@ -104,20 +136,20 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       bad_customer_id = 13371337
       Customer.find_by(id: bad_customer_id).must_be_nil
 
-      post check_in_url(title: @rental.movie.title), params: {
+      post check_in_path(title: @rental.movie.title), params: {
         customer_id: bad_customer_id
       }
-      assert_response :not_found
+      must_respond_with :not_found
       data = JSON.parse @response.body
       data.must_include "errors"
       data["errors"].must_include "customer_id"
     end
 
     it "requires there to be a rental for that customer-movie pair" do
-      post check_in_url(title: movies(:two).title), params: {
+      post check_in_path(title: movies(:two).title), params: {
         customer_id: customers(:three).id
       }
-      assert_response :not_found
+      must_respond_with :not_found
       data = JSON.parse @response.body
       data.must_include "errors"
       data["errors"].must_include "rental"
@@ -127,10 +159,10 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       @rental.returned = true
       @rental.save!
 
-      post check_in_url(title: @rental.movie.title), params: {
+      post check_in_path(title: @rental.movie.title), params: {
         customer_id: @rental.customer.id
       }
-      assert_response :not_found
+      must_respond_with :not_found
       data = JSON.parse @response.body
       data.must_include "errors"
       data["errors"].must_include "rental"
@@ -145,10 +177,10 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
         returned: true
       )
 
-      post check_in_url(title: @rental.movie.title), params: {
+      post check_in_path(title: @rental.movie.title), params: {
         customer_id: @rental.customer.id
       }
-      assert_response :success
+      must_respond_with :success
 
       returned_rental.reload
       @rental.reload
@@ -173,10 +205,10 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
         returned: false
       )
 
-      post check_in_url(title: @rental.movie.title), params: {
+      post check_in_path(title: @rental.movie.title), params: {
         customer_id: @rental.customer.id
       }
-      assert_response :success
+      must_respond_with :success
 
       soon_rental.reload
       @rental.reload
@@ -195,8 +227,8 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
     # is responsible for.
 
     it "Returns a JSON array" do
-      get overdue_url
-      assert_response :success
+      get overdue_path
+      must_respond_with :success
       @response.headers['Content-Type'].must_include 'json'
 
       # Attempt to parse
@@ -211,8 +243,8 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
         r.save!
       end
 
-      get overdue_url
-      assert_response :success
+      get overdue_path
+      must_respond_with :success
 
       data = JSON.parse @response.body
       data.must_be_kind_of Array
@@ -223,8 +255,8 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       # Make sure we get something back
       Rental.overdue.length.must_be :>, 0
 
-      get overdue_url
-      assert_response :success
+      get overdue_path
+      must_respond_with :success
 
       data = JSON.parse @response.body
       data.must_be_kind_of Array

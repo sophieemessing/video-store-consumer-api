@@ -1,11 +1,11 @@
 require 'test_helper'
 
-class CustomersControllerTest < ActionDispatch::IntegrationTest
+class MoviesControllerTest < ActionDispatch::IntegrationTest
 
   describe "List customers" do
     it "returns a JSON array" do
-      get customers_url
-      assert_response :success
+      get customers_path
+      must_respond_with :success
       @response.headers['Content-Type'].must_include 'json'
 
       # Attempt to parse
@@ -14,8 +14,8 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     end
 
     it "should return many customer fields" do
-      get customers_url
-      assert_response :success
+      get customers_path
+      must_respond_with :success
 
       data = JSON.parse @response.body
       data.each do |customer|
@@ -32,7 +32,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
 
 
     it "returns all customers when no query params are given" do
-      get customers_url
+      get customers_path
       assert_response :success
 
       data = JSON.parse @response.body
@@ -51,7 +51,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
 
     describe "sorting" do
       it "can sort by name" do
-        get customers_url, params: { sort: 'name' }
+        get customers_path, params: { sort: 'name' }
         assert_response :success
 
         data = JSON.parse @response.body
@@ -68,7 +68,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
       end
 
       it "can sort by registered_at" do
-        get customers_url, params: { sort: 'registered_at' }
+        get customers_path, params: { sort: 'registered_at' }
         assert_response :success
 
         data = JSON.parse @response.body
@@ -85,7 +85,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
       end
 
       it "can sort by postal_code" do
-        get customers_url, params: { sort: 'postal_code' }
+        get customers_path, params: { sort: 'postal_code' }
         assert_response :success
 
         data = JSON.parse @response.body
@@ -102,7 +102,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
       end
 
       it "returns an error for an invalid sort field" do
-        get customers_url, params: { sort: 'gnome' }
+        get customers_path, params: { sort: 'gnome' }
         assert_response :bad_request
 
         data = JSON.parse @response.body
@@ -116,7 +116,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     describe "pagination" do
       it "can restrict entries per page" do
         Customer.count.must_be :>, 2
-        get customers_url, params: { n: 2 }
+        get customers_path, params: { n: 2 }
         assert_response :success
 
         data = JSON.parse @response.body
@@ -125,14 +125,14 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
 
       it "can return different pages" do
         Customer.count.must_be :>, 2
-        get customers_url, params: { n: 2, p: 1 }
+        get customers_path, params: { n: 2, p: 1 }
         assert_response :success
 
         page_one_data = JSON.parse @response.body
         page_one_data.length.must_equal 2
         page_one_ids = page_one_data.map { |c| c['id'] }
 
-        get customers_url, params: { n: 2, p: 2 }
+        get customers_path, params: { n: 2, p: 2 }
         assert_response :success
 
         page_two_data = JSON.parse @response.body
@@ -146,7 +146,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
         Customer.count.must_be :>, 2
 
         # Get first page
-        get customers_url, params: { sort: 'name', n: 2, p: 1 }
+        get customers_path, params: { sort: 'name', n: 2, p: 1 }
         assert_response :success
 
         data = JSON.parse @response.body
@@ -154,7 +154,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
         all_names = data.map { |c| c['name'] }
 
         # Get second page
-        get customers_url, params: { sort: 'name', n: 2, p: 2 }
+        get customers_path, params: { sort: 'name', n: 2, p: 2 }
         assert_response :success
 
         data = JSON.parse @response.body
@@ -179,8 +179,8 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
         Customer.count.must_be :<, 10000
 
         # Get first page
-        get customers_url, params: { n: 10, p: 1001 }
-        assert_response :success
+        get customers_path, params: { n: 10, p: 1001 }
+        must_respond_with :success
 
         data = JSON.parse @response.body
         data.length.must_equal 0
@@ -190,15 +190,12 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
         Customer.count.must_be :<, 10000
 
         # Get first page
-        get customers_url, params: { n: 10000, p: 1 }
+        get customers_path, params: { n: 10000, p: 1 }
         assert_response :success
 
         data = JSON.parse @response.body
         data.length.must_equal Customer.count
       end
-
-      # it "requires a number" do
-      # end
     end
   end
 end
