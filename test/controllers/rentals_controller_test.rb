@@ -90,6 +90,38 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       @rental.returned.must_equal true
     end
 
+    it "can check out a rental and return it" do 
+      # Arrange
+      Rental.destroy_all
+      customer = Customer.first
+      movie = Movie.first
+
+      post check_out_path(title: movie.title), params: {
+        customer_id:  customer.id,
+        due_date:     Date.today + 5
+      }
+
+      # Act
+
+      post check_in_path(title: movie.title), params: {
+        customer_id: customer.id
+      }
+
+      must_respond_with :success
+
+      rental = Rental.first
+
+      expect(rental.customer_id).must_equal customer.id
+      expect(rental.movie_id).must_equal movie.id
+      expect(rental.due_date).must_equal Date.today + 5
+      expect(rental.returned).must_equal true
+
+
+      
+
+
+    end
+     
     it "requires a valid movie title" do
       post check_in_path(title: "does not exist"), params: {
         customer_id: @rental.customer.id
