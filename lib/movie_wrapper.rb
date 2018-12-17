@@ -1,3 +1,5 @@
+Rails.logger = Logger.new(STDOUT)
+
 class MovieWrapper
   BASE_URL = "https://api.themoviedb.org/3/"
   KEY = ENV["MOVIEDB_KEY"]
