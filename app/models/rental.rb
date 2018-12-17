@@ -7,9 +7,11 @@ class Rental < ApplicationRecord
   validate :due_date_in_future, on: :create
 
   after_initialize :set_checkout_date
+  after_initialize :set_returned
+
 
   def self.first_outstanding(movie, customer)
-    self.where(movie: movie, customer: customer, returned: nil).order(:due_date).first
+    self.where(movie: movie, customer: customer, returned: false).order(:due_date).first
   end
 
   def self.overdue
@@ -26,5 +28,9 @@ private
 
   def set_checkout_date
     self.checkout_date ||= Date.today
+  end
+
+  def set_returned
+    self.returned ||= false
   end
 end
