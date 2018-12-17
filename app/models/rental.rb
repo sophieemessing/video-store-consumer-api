@@ -9,7 +9,7 @@ class Rental < ApplicationRecord
   after_initialize :set_checkout_date
 
   def self.first_outstanding(movie, customer)
-    self.where(movie: movie, customer: customer, returned: false).order(:due_date).first
+    self.where(movie: movie, customer: customer, returned: nil).order(:due_date).first
   end
 
   def self.overdue
