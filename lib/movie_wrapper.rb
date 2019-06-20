@@ -9,13 +9,10 @@ class MovieWrapper
 
   def self.search(query)
     url = BASE_URL + "search/movie?api_key=" + KEY + "&query=" + query
-    puts url
-    # puts url
     response =  HTTParty.get(url)
     if response["total_results"] == 0
       return []
     else
-      puts response
       movies = response["results"].map do |result|
         self.construct_movie(result)
       end
