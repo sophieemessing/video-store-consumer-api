@@ -1,4 +1,3 @@
-
 class MovieWrapper
   BASE_URL = "https://api.themoviedb.org/3/"
   KEY = ENV["MOVIEDB_KEY"]
@@ -7,16 +6,26 @@ class MovieWrapper
   DEFAULT_IMG_SIZE = "w185"
   DEFAULT_IMG_URL = "http://lorempixel.com/185/278/"
 
-  def self.search(query)
+  def self.search(query, retries_left=3)
     url = BASE_URL + "search/movie?api_key=" + KEY + "&query=" + query
+
     response =  HTTParty.get(url)
-    if response["total_results"] == 0
-      return []
-    else
-      movies = response["results"].map do |result|
-        self.construct_movie(result)
+
+    if response.success?
+      if response["total_results"] == 0
+        return []
+      else
+        movies = response["results"].map do |result|
+          self.construct_movie(result)
+        end
+        return movies
       end
-      return movies
+    elsif retries_left > 0
+      sleep(1.0 / (2 ** retries_left))
+
+      return self.search(query, retries_left - 1)
+    else
+      raise "Request failed: #{url}"
     end
   end
 
