@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "test": "clear; jasmine-node --verbose spec/"
+    "test": "clear; jasmine-node --verbose test/"
   },
   "dependencies": {
     "body-parser": "~1.13.2",
