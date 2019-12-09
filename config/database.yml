@@ -13,15 +13,14 @@ default: &default
 
 development:
   <<: *default
-  database: <APPLICATION_NAME>_development
-# ...
+  database: video-store-consumer-api_development
 test:
   <<: *default
-  database: <APPLICATION_NAME>_test
+  database: video-store-consumer-api_test
 
 production:
   <<: *default
-  database: <APPLICATION_NAME>_production
-  username: <APPLICATION_NAME>
-  password: <%= ENV['<APPLICATION_NAME>_DATABASE_PASSWORD'] %>
+  database: video-store-consumer-api_production
+  username: video-store-consumer-api
+  password: <%= ENV['video-store-consumer-api_DATABASE_PASSWORD'] %>
 
