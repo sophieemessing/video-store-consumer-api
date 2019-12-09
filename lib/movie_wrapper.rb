@@ -36,8 +36,9 @@ class MovieWrapper
       title: api_result["title"],
       overview: api_result["overview"],
       release_date: api_result["release_date"],
-      image_url: api_result["poster_path"], #(api_result["poster_path"] ? self.construct_image_url(api_result["poster_path"]) : nil),
-      external_id: api_result["id"])
+      image_url: api_result["poster_path"],
+      external_id: api_result["id"]
+    )
   end
 
   def self.construct_image_url(img_name)

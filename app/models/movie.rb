@@ -7,13 +7,13 @@ class Movie < ApplicationRecord
   end
 
   def image_url
-    orig_value = read_attribute :image_url
-    if !orig_value
+    raw_value = read_attribute :image_url
+    if !raw_value
       MovieWrapper::DEFAULT_IMG_URL
-    elsif external_id
-      MovieWrapper.construct_image_url(orig_value)
+    elsif /^https?:\/\//.match?(raw_value)
+      raw_value
     else
-      orig_value
+      MovieWrapper.construct_image_url(raw_value)
     end
   end
 end
