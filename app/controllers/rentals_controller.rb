@@ -1,10 +1,10 @@
 class RentalsController < ApplicationController
-  before_action :require_movie, only: [:check_out, :check_in]
+  before_action :require_video, only: [:check_out, :check_in]
   before_action :require_customer, only: [:check_out, :check_in]
 
   # TODO: make sure that wave 2 works all the way
   def check_out
-    rental = Rental.new(movie: @movie, customer: @customer, due_date: params[:due_date])
+    rental = Rental.new(video: @video, customer: @customer, due_date: params[:due_date])
 
     if rental.save
       render status: :ok, json: {}
@@ -14,11 +14,11 @@ class RentalsController < ApplicationController
   end
 
   def check_in
-    rental = Rental.first_outstanding(@movie, @customer)
+    rental = Rental.first_outstanding(@video, @customer)
     unless rental
       return render status: :not_found, json: {
         errors: {
-          rental: ["Customer #{@customer.id} does not have #{@movie.title} checked out"]
+          rental: ["Customer #{@customer.id} does not have #{@video.title} checked out"]
         }
       }
     end
@@ -33,7 +33,7 @@ class RentalsController < ApplicationController
   def overdue
     rentals = Rental.overdue.map do |rental|
       {
-          title: rental.movie.title,
+          title: rental.video.title,
           customer_id: rental.customer_id,
           name: rental.customer.name,
           postal_code: rental.customer.postal_code,
@@ -46,10 +46,10 @@ class RentalsController < ApplicationController
 
 private
   # TODO: make error payloads arrays
-  def require_movie
-    @movie = Movie.find_by title: params[:title]
-    unless @movie
-      render status: :not_found, json: { errors: { title: ["No movie with title #{params[:title]}"] } }
+  def require_video
+    @video = Video.find_by title: params[:title]
+    unless @video
+      render status: :not_found, json: { errors: { title: ["No video with title #{params[:title]}"] } }
     end
   end
 

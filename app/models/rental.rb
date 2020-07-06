@@ -1,8 +1,8 @@
 class Rental < ApplicationRecord
-  belongs_to :movie
+  belongs_to :video
   belongs_to :customer
 
-  # validates :movie, uniqueness: { scope: :customer }
+  # validates :video, uniqueness: { scope: :customer }
   validates :due_date, presence: true
   validate :due_date_in_future, on: :create
 
@@ -10,8 +10,8 @@ class Rental < ApplicationRecord
   after_initialize :set_returned
 
 
-  def self.first_outstanding(movie, customer)
-    self.where(movie: movie, customer: customer, returned: false).order(:due_date).first
+  def self.first_outstanding(video, customer)
+    self.where(video: video, customer: customer, returned: false).order(:due_date).first
   end
 
   def self.overdue

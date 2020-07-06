@@ -1,7 +1,7 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 overdue:
-  movie: one
+  video: one
   customer: one
   checkout_date: 2005-01-01
   due_date: 2005-01-10

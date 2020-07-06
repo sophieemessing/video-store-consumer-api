@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class MoviesControllerTest < ActionDispatch::IntegrationTest
+class CustomersControllerTest < ActionDispatch::IntegrationTest
 
   describe "List customers" do
     it "returns a JSON array" do
@@ -25,7 +25,7 @@ class MoviesControllerTest < ActionDispatch::IntegrationTest
         customer.must_include "postal_code"
         customer.must_include "phone"
         customer.must_include "account_credit"
-        customer.must_include "movies_checked_out_count"
+        customer.must_include "videos_checked_out_count"
       end
     end
 

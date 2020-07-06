@@ -27,14 +27,14 @@ class CustomerTest < ActiveSupport::TestCase
       @customer.must_respond_to :rentals
     end
 
-    it "Has movies" do
-      @customer.must_respond_to :movies
+    it "Has videos" do
+      @customer.must_respond_to :videos
     end
   end
 
-  describe "movies_checked_out_count" do
+  describe "videos_checked_out_count" do
     it "Should exist" do
-      @customer.must_respond_to :movies_checked_out_count
+      @customer.must_respond_to :videos_checked_out_count
     end
 
     it "Returns 0 if no rentals" do
@@ -42,41 +42,41 @@ class CustomerTest < ActiveSupport::TestCase
       Rental.destroy_all
 
       @customer.reload
-      @customer.movies_checked_out_count.must_equal 0
+      @customer.videos_checked_out_count.must_equal 0
     end
 
-    it "Returns the number of movies checked out" do
+    it "Returns the number of videos checked out" do
       Rental.destroy_all
 
       Rental.create!(
         customer: @customer,
-        movie: movies(:one),
+        video: videos(:one),
         due_date: Date.today + 7,
         returned: false
       )
       Rental.create!(
         customer: @customer,
-        movie: movies(:two),
+        video: videos(:two),
         due_date: Date.today + 7,
         returned: false
       )
 
       @customer.reload
-      @customer.movies_checked_out_count.must_equal 2
+      @customer.videos_checked_out_count.must_equal 2
     end
 
-    it "Ignores returned movies" do
+    it "Ignores returned videos" do
       Rental.destroy_all
 
       Rental.create!(
         customer: @customer,
-        movie: movies(:one),
+        video: videos(:one),
         due_date: Date.today + 7,
         returned: true
       )
 
       @customer.reload
-      @customer.movies_checked_out_count.must_equal 0
+      @customer.videos_checked_out_count.must_equal 0
     end
   end
 end

@@ -1,7 +1,7 @@
 require 'test_helper'
 
-class MovieTest < ActiveSupport::TestCase
-  let (:movie_data) {
+class VideoTest < ActiveSupport::TestCase
+  let (:video_data) {
     {
       "title": "Hidden Figures",
       "overview": "Some text",
@@ -11,70 +11,70 @@ class MovieTest < ActiveSupport::TestCase
   }
 
   before do
-    @movie = Movie.new(movie_data)
+    @video = Video.new(video_data)
   end
 
   describe "Constructor" do
     it "Can be created" do
-      Movie.create!(movie_data)
+      Video.create!(video_data)
     end
 
     it "Has rentals" do
-      @movie.must_respond_to :rentals
+      @video.must_respond_to :rentals
     end
 
     it "Has customers" do
-      @movie.must_respond_to :customers
+      @video.must_respond_to :customers
     end
   end
 
   describe "available_inventory" do
-    it "Matches inventory if the movie isn't checked out" do
-      # Make sure no movies are checked out
+    it "Matches inventory if the video isn't checked out" do
+      # Make sure no videos are checked out
       Rental.destroy_all
-      Movie.all.each do |movie|
-        movie.available_inventory().must_equal movie.inventory
+      Video.all.each do |video|
+        video.available_inventory().must_equal video.inventory
       end
     end
 
-    it "Decreases when a movie is checked out" do
+    it "Decreases when a video is checked out" do
       Rental.destroy_all
 
-      movie = movies(:one)
-      before_ai = movie.available_inventory
+      video = videos(:one)
+      before_ai = video.available_inventory
 
       Rental.create!(
         customer: customers(:one),
-        movie: movie,
+        video: video,
         due_date: Date.today + 7,
         returned: false
       )
 
-      movie.reload
-      after_ai = movie.available_inventory
+      video.reload
+      after_ai = video.available_inventory
       after_ai.must_equal before_ai - 1
     end
 
-    it "Increases when a movie is checked in" do
+    it "Increases when a video is checked in" do
       Rental.destroy_all
 
-      movie = movies(:one)
+      video = videos(:one)
 
       rental =Rental.create!(
         customer: customers(:one),
-        movie: movie,
+        video: video,
         due_date: Date.today + 7,
         returned: false
       )
 
-      movie.reload
-      before_ai = movie.available_inventory
+      video.reload
+      before_ai = video.available_inventory
 
       rental.returned = true
       rental.save!
 
-      movie.reload
-      after_ai = movie.available_inventory
+      video.reload
+      after_ai = video.available_inventory
       after_ai.must_equal before_ai + 1
     end
   end

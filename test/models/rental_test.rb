@@ -6,7 +6,7 @@ class RentalTest < ActiveSupport::TestCase
       checkout_date: "2017-01-08:",
       due_date: Date.today + 1,
       customer: customers(:one),
-      movie: movies(:one)
+      video: videos(:one)
     }
   }
 
@@ -31,16 +31,16 @@ class RentalTest < ActiveSupport::TestCase
       c.errors.messages.must_include :customer
     end
 
-    it "Has a movie" do
-      @rental.must_respond_to :movie
+    it "Has a video" do
+      @rental.must_respond_to :video
     end
 
-    it "Cannot be created without a movie" do
+    it "Cannot be created without a video" do
       data = rental_data.clone
-      data.delete :movie
+      data.delete :video
       c = Rental.new(data)
       c.valid?.must_equal false
-      c.errors.messages.must_include :movie
+      c.errors.messages.must_include :video
     end
   end
 
@@ -79,7 +79,7 @@ class RentalTest < ActiveSupport::TestCase
     it "returns the only un-returned rental" do
       Rental.count.must_equal 1
       Rental.first.returned.must_equal false
-      Rental.first_outstanding(Rental.first.movie, Rental.first.customer).must_equal Rental.first
+      Rental.first_outstanding(Rental.first.video, Rental.first.customer).must_equal Rental.first
     end
 
     it "returns nil if no rentals are un-returned" do
@@ -87,33 +87,35 @@ class RentalTest < ActiveSupport::TestCase
         rental.returned = true
         rental.save!
       end
-      Rental.first_outstanding(Rental.first.movie, Rental.first.customer).must_be_nil
+      Rental.first_outstanding(Rental.first.video, Rental.first.customer).must_be_nil
     end
 
     it "prefers rentals with earlier due dates" do
       # Start with a clean slate
       Rental.destroy_all
 
-      last = Rental.create!(
-        movie: movies(:one),
+      # Last
+      Rental.create!(
+        video: videos(:one),
         customer: customers(:one),
         due_date: Date.today + 30,
         returned: false
       )
       first = Rental.create!(
-        movie: movies(:one),
+        video: videos(:one),
         customer: customers(:one),
         due_date: Date.today + 10,
         returned: false
       )
-      middle = Rental.create!(
-        movie: movies(:one),
+      # Middle
+      Rental.create!(
+        video: videos(:one),
         customer: customers(:one),
         due_date: Date.today + 20,
         returned: false
       )
       Rental.first_outstanding(
-        movies(:one),
+        videos(:one),
         customers(:one)
       ).must_equal first
     end
@@ -122,21 +124,22 @@ class RentalTest < ActiveSupport::TestCase
       # Start with a clean slate
       Rental.destroy_all
 
-      returned = Rental.create!(
-        movie: movies(:one),
+      # Returned
+      Rental.create!(
+        video: videos(:one),
         customer: customers(:one),
         due_date: Date.today + 10,
         returned: true
       )
       outstanding = Rental.create!(
-        movie: movies(:one),
+        video: videos(:one),
         customer: customers(:one),
         due_date: Date.today + 30,
         returned: false
       )
 
       Rental.first_outstanding(
-        movies(:one),
+        videos(:one),
         customers(:one)
       ).must_equal outstanding
     end
@@ -155,7 +158,7 @@ class RentalTest < ActiveSupport::TestCase
 
     it "ignores rentals that aren't due yet" do
       Rental.create!(
-        movie: movies(:two),
+        video: videos(:two),
         customer: customers(:one),
         due_date: Date.today + 10,
         returned: false
@@ -168,7 +171,7 @@ class RentalTest < ActiveSupport::TestCase
 
     it "ignores rentals that have been returned" do
       Rental.new(
-        movie: movies(:two),
+        video: videos(:two),
         customer: customers(:one),
         due_date: Date.today - 3,
         returned: true

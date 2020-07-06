@@ -2,34 +2,34 @@ require 'test_helper'
 
 class RentalsControllerTest < ActionDispatch::IntegrationTest
   describe "check-out" do
-    it "associates a movie with a customer" do
-      movie = movies(:one)
+    it "associates a video with a customer" do
+      video = videos(:one)
       customer = customers(:two)
 
-      post check_out_path(title: movie.title), params: {
+      post check_out_path(title: video.title), params: {
         customer_id: customer.id,
         due_date: Date.today + 1
       }
       must_respond_with :success
 
       # Reload from DB
-      Movie.find(movie.id).customers.must_include Customer.find(customer.id)
+      Video.find(video.id).customers.must_include Customer.find(customer.id)
     end
 
     it "sets the checkout_date to today" do
-      movie = movies(:one)
+      video = videos(:one)
       customer = customers(:two)
 
-      post check_out_path(title: movie.title), params: {
+      post check_out_path(title: video.title), params: {
         customer_id: customer.id,
         due_date: Date.today + 1
       }
       must_respond_with :success
 
-      Movie.find(movie.id).rentals.last.checkout_date.must_equal Date.today
+      Video.find(video.id).rentals.last.checkout_date.must_equal Date.today
     end
 
-    it "requires a valid movie title" do
+    it "requires a valid video title" do
       post check_out_path(title: "does not exist"), params: {
         customer_id: customers(:two).id,
         due_date: Date.today + 1
@@ -44,7 +44,7 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       bad_customer_id = 13371337
       Customer.find_by(id: bad_customer_id).must_be_nil
 
-      post check_out_path(title: movies(:one).title), params: {
+      post check_out_path(title: videos(:one).title), params: {
         customer_id: bad_customer_id,
         due_date: Date.today + 1
       }
@@ -56,7 +56,7 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
 
     it "requires a due-date in the future" do
       # Obvious case: actually in the past
-      post check_out_path(title: movies(:one).title), params: {
+      post check_out_path(title: videos(:one).title), params: {
         customer_id: customers(:two).id,
         due_date: Date.today - 1
       }
@@ -71,7 +71,7 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
     before do
       # Establish a rental
       @rental = Rental.create!(
-        movie: movies(:one),
+        video: videos(:one),
         customer: customers(:two),
         checkout_date: Date.today - 5,
         due_date: Date.today + 5,
@@ -80,7 +80,7 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
     end
 
     it "marks a rental complete" do
-      post check_in_path(title: @rental.movie.title), params: {
+      post check_in_path(title: @rental.video.title), params: {
         customer_id: @rental.customer.id
       }
       must_respond_with :success
@@ -90,20 +90,20 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       @rental.returned.must_equal true
     end
 
-    it "can check out a rental and return it" do 
+    it "can check out a rental and return it" do
       # Arrange
       Rental.destroy_all
       customer = Customer.first
-      movie = Movie.first
+      video = Video.first
 
-      post check_out_path(title: movie.title), params: {
+      post check_out_path(title: video.title), params: {
         customer_id:  customer.id,
         due_date:     Date.today + 5
       }
 
       # Act
 
-      post check_in_path(title: movie.title), params: {
+      post check_in_path(title: video.title), params: {
         customer_id: customer.id
       }
 
@@ -112,17 +112,17 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       rental = Rental.first
 
       expect(rental.customer_id).must_equal customer.id
-      expect(rental.movie_id).must_equal movie.id
+      expect(rental.video_id).must_equal video.id
       expect(rental.due_date).must_equal Date.today + 5
       expect(rental.returned).must_equal true
 
 
-      
+
 
 
     end
-     
-    it "requires a valid movie title" do
+
+    it "requires a valid video title" do
       post check_in_path(title: "does not exist"), params: {
         customer_id: @rental.customer.id
       }
@@ -136,7 +136,7 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       bad_customer_id = 13371337
       Customer.find_by(id: bad_customer_id).must_be_nil
 
-      post check_in_path(title: @rental.movie.title), params: {
+      post check_in_path(title: @rental.video.title), params: {
         customer_id: bad_customer_id
       }
       must_respond_with :not_found
@@ -145,8 +145,8 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       data["errors"].must_include "customer_id"
     end
 
-    it "requires there to be a rental for that customer-movie pair" do
-      post check_in_path(title: movies(:two).title), params: {
+    it "requires there to be a rental for that customer-video pair" do
+      post check_in_path(title: videos(:two).title), params: {
         customer_id: customers(:three).id
       }
       must_respond_with :not_found
@@ -159,7 +159,7 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       @rental.returned = true
       @rental.save!
 
-      post check_in_path(title: @rental.movie.title), params: {
+      post check_in_path(title: @rental.video.title), params: {
         customer_id: @rental.customer.id
       }
       must_respond_with :not_found
@@ -170,14 +170,14 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
 
     it "if multiple rentals match, ignores returned ones" do
       returned_rental = Rental.create!(
-        movie: @rental.movie,
+        video: @rental.video,
         customer: @rental.customer,
         checkout_date: Date.today - 5,
         due_date: @rental.due_date - 2,
         returned: true
       )
 
-      post check_in_path(title: @rental.movie.title), params: {
+      post check_in_path(title: @rental.video.title), params: {
         customer_id: @rental.customer.id
       }
       must_respond_with :success
@@ -190,7 +190,7 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
 
     it "returns the rental with the closest due_date" do
       soon_rental = Rental.create!(
-        movie: @rental.movie,
+        video: @rental.video,
         customer: @rental.customer,
         checkout_date: Date.today - 5,
         due_date: @rental.due_date - 2,
@@ -198,14 +198,14 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       )
 
       far_rental = Rental.create!(
-        movie: @rental.movie,
+        video: @rental.video,
         customer: @rental.customer,
         checkout_date: Date.today - 5,
         due_date: @rental.due_date + 10,
         returned: false
       )
 
-      post check_in_path(title: @rental.movie.title), params: {
+      post check_in_path(title: @rental.video.title), params: {
         customer_id: @rental.customer.id
       }
       must_respond_with :success

@@ -1,8 +1,8 @@
 class Customer < ApplicationRecord
   has_many :rentals
-  has_many :movies, through: :rentals
+  has_many :videos, through: :rentals
 
-  def movies_checked_out_count
+  def videos_checked_out_count
     self.rentals.where(returned: false).length
   end
 end
