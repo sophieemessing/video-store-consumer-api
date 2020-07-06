@@ -24,17 +24,17 @@ class CustomerTest < ActiveSupport::TestCase
     end
 
     it "Has rentals" do
-      @customer.must_respond_to :rentals
+      expect(@customer).must_respond_to :rentals
     end
 
     it "Has videos" do
-      @customer.must_respond_to :videos
+      expect(@customer).must_respond_to :videos
     end
   end
 
   describe "videos_checked_out_count" do
     it "Should exist" do
-      @customer.must_respond_to :videos_checked_out_count
+      expect(@customer).must_respond_to :videos_checked_out_count
     end
 
     it "Returns 0 if no rentals" do
@@ -42,7 +42,7 @@ class CustomerTest < ActiveSupport::TestCase
       Rental.destroy_all
 
       @customer.reload
-      @customer.videos_checked_out_count.must_equal 0
+      expect(@customer.videos_checked_out_count).must_equal 0
     end
 
     it "Returns the number of videos checked out" do
@@ -62,7 +62,7 @@ class CustomerTest < ActiveSupport::TestCase
       )
 
       @customer.reload
-      @customer.videos_checked_out_count.must_equal 2
+      expect(@customer.videos_checked_out_count).must_equal 2
     end
 
     it "Ignores returned videos" do
@@ -76,7 +76,7 @@ class CustomerTest < ActiveSupport::TestCase
       )
 
       @customer.reload
-      @customer.videos_checked_out_count.must_equal 0
+      expect(@customer.videos_checked_out_count).must_equal 0
     end
   end
 end

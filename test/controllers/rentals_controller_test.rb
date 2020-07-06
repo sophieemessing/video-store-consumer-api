@@ -13,7 +13,9 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       must_respond_with :success
 
       # Reload from DB
-      Video.find(video.id).customers.must_include Customer.find(customer.id)
+      expect(
+        Video.find(video.id).customers
+      ).must_include Customer.find(customer.id)
     end
 
     it "sets the checkout_date to today" do
@@ -26,7 +28,9 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       }
       must_respond_with :success
 
-      Video.find(video.id).rentals.last.checkout_date.must_equal Date.today
+      expect(
+        Video.find(video.id).rentals.last.checkout_date
+      ).must_equal Date.today
     end
 
     it "requires a valid video title" do
@@ -36,13 +40,13 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       }
       must_respond_with :not_found
       data = JSON.parse @response.body
-      data.must_include "errors"
-      data["errors"].must_include "title"
+      expect(data).must_include "errors"
+      expect(data["errors"]).must_include "title"
     end
 
     it "requires a valid customer ID" do
       bad_customer_id = 13371337
-      Customer.find_by(id: bad_customer_id).must_be_nil
+      expect(Customer.find_by(id: bad_customer_id)).must_be_nil
 
       post check_out_path(title: videos(:one).title), params: {
         customer_id: bad_customer_id,
@@ -50,8 +54,8 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       }
       must_respond_with :not_found
       data = JSON.parse @response.body
-      data.must_include "errors"
-      data["errors"].must_include "customer_id"
+      expect(data).must_include "errors"
+      expect(data["errors"]).must_include "customer_id"
     end
 
     it "requires a due-date in the future" do
@@ -62,8 +66,8 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       }
       must_respond_with :bad_request
       data = JSON.parse @response.body
-      data.must_include "errors"
-      data["errors"].must_include "due_date"
+      expect(data).must_include "errors"
+      expect(data["errors"]).must_include "due_date"
     end
   end
 
@@ -87,7 +91,7 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
 
       @rental.reload
 
-      @rental.returned.must_equal true
+      expect(@rental.returned).must_equal true
     end
 
     it "can check out a rental and return it" do
@@ -102,7 +106,6 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       }
 
       # Act
-
       post check_in_path(title: video.title), params: {
         customer_id: customer.id
       }
@@ -111,15 +114,11 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
 
       rental = Rental.first
 
+      # Expect
       expect(rental.customer_id).must_equal customer.id
       expect(rental.video_id).must_equal video.id
       expect(rental.due_date).must_equal Date.today + 5
       expect(rental.returned).must_equal true
-
-
-
-
-
     end
 
     it "requires a valid video title" do
@@ -128,21 +127,21 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       }
       must_respond_with :not_found
       data = JSON.parse @response.body
-      data.must_include "errors"
-      data["errors"].must_include "title"
+      expect(data).must_include "errors"
+      expect(data["errors"]).must_include "title"
     end
 
     it "requires a valid customer ID" do
       bad_customer_id = 13371337
-      Customer.find_by(id: bad_customer_id).must_be_nil
+      expect(Customer.find_by(id: bad_customer_id)).must_be_nil
 
       post check_in_path(title: @rental.video.title), params: {
         customer_id: bad_customer_id
       }
       must_respond_with :not_found
       data = JSON.parse @response.body
-      data.must_include "errors"
-      data["errors"].must_include "customer_id"
+      expect(data).must_include "errors"
+      expect(data["errors"]).must_include "customer_id"
     end
 
     it "requires there to be a rental for that customer-video pair" do
@@ -151,8 +150,8 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       }
       must_respond_with :not_found
       data = JSON.parse @response.body
-      data.must_include "errors"
-      data["errors"].must_include "rental"
+      expect(data).must_include "errors"
+      expect(data["errors"]).must_include "rental"
     end
 
     it "requires an un-returned rental" do
@@ -164,8 +163,8 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       }
       must_respond_with :not_found
       data = JSON.parse @response.body
-      data.must_include "errors"
-      data["errors"].must_include "rental"
+      expect(data).must_include "errors"
+      expect(data["errors"]).must_include "rental"
     end
 
     it "if multiple rentals match, ignores returned ones" do
@@ -185,7 +184,7 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       returned_rental.reload
       @rental.reload
 
-      @rental.returned.must_equal true
+      expect(@rental.returned).must_equal true
     end
 
     it "returns the rental with the closest due_date" do
@@ -214,9 +213,9 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       @rental.reload
       far_rental.reload
 
-      soon_rental.returned.must_equal true
-      @rental.returned.must_equal false
-      far_rental.returned.must_equal false
+      expect(soon_rental.returned).must_equal true
+      expect(@rental.returned).must_equal false
+      expect(far_rental.returned).must_equal false
     end
   end
 
@@ -229,11 +228,11 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
     it "Returns a JSON array" do
       get overdue_path
       must_respond_with :success
-      @response.headers['Content-Type'].must_include 'json'
+      expect(@response.headers['Content-Type']).must_include 'json'
 
       # Attempt to parse
       data = JSON.parse @response.body
-      data.must_be_kind_of Array
+      expect(data).must_be_kind_of Array
     end
 
     it "Returns an empty array if no rentals overdue" do
@@ -247,29 +246,29 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       must_respond_with :success
 
       data = JSON.parse @response.body
-      data.must_be_kind_of Array
-      data.length.must_equal 0
+      expect(data).must_be_kind_of Array
+      expect(data.length).must_equal 0
     end
 
     it "Returns expected fields" do
       # Make sure we get something back
-      Rental.overdue.length.must_be :>, 0
+      expect(Rental.overdue.length).must_be :>, 0
 
       get overdue_path
       must_respond_with :success
 
       data = JSON.parse @response.body
-      data.must_be_kind_of Array
-      data.length.must_equal Rental.overdue.length
+      expect(data).must_be_kind_of Array
+      expect(data.length).must_equal Rental.overdue.length
 
       data.each do |rental|
-        rental.must_be_kind_of Hash
-        rental.must_include "title"
-        rental.must_include "customer_id"
-        rental.must_include "name"
-        rental.must_include "postal_code"
-        rental.must_include "checkout_date"
-        rental.must_include "due_date"
+        expect(rental).must_be_kind_of Hash
+        expect(rental).must_include "title"
+        expect(rental).must_include "customer_id"
+        expect(rental).must_include "name"
+        expect(rental).must_include "postal_code"
+        expect(rental).must_include "checkout_date"
+        expect(rental).must_include "due_date"
       end
     end
   end

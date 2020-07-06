@@ -5,11 +5,11 @@ class VideosControllerTest < ActionDispatch::IntegrationTest
     it "returns a JSON array" do
       get videos_url
       assert_response :success
-      @response.headers['Content-Type'].must_include 'json'
+      expect(@response.headers['Content-Type']).must_include 'json'
 
       # Attempt to parse
       data = JSON.parse @response.body
-      data.must_be_kind_of Array
+      expect(data).must_be_kind_of Array
     end
 
     it "should return many video fields" do
@@ -18,8 +18,8 @@ class VideosControllerTest < ActionDispatch::IntegrationTest
 
       data = JSON.parse @response.body
       data.each do |video|
-        video.must_include "title"
-        video.must_include "release_date"
+        expect(video).must_include "title"
+        expect(video).must_include "release_date"
       end
     end
 
@@ -28,7 +28,7 @@ class VideosControllerTest < ActionDispatch::IntegrationTest
       assert_response :success
 
       data = JSON.parse @response.body
-      data.length.must_equal Video.count
+      expect(data.length).must_equal Video.count
 
       expected_names = {}
       Video.all.each do |video|
@@ -36,7 +36,10 @@ class VideosControllerTest < ActionDispatch::IntegrationTest
       end
 
       data.each do |video|
-        expected_names[video["title"]].must_equal false, "Got back duplicate video #{video["title"]}"
+        expect(
+          expected_names[video["title"]]
+        ).must_equal false, "Got back duplicate video #{video["title"]}"
+
         expected_names[video["title"]] = true
       end
     end
@@ -46,11 +49,11 @@ class VideosControllerTest < ActionDispatch::IntegrationTest
     it "Returns a JSON object" do
       get video_url(title: videos(:one).title)
       assert_response :success
-      @response.headers['Content-Type'].must_include 'json'
+      expect(@response.headers['Content-Type']).must_include 'json'
 
       # Attempt to parse
       data = JSON.parse @response.body
-      data.must_be_kind_of Hash
+      expect(data).must_be_kind_of Hash
     end
 
     it "Returns expected fields" do
@@ -58,11 +61,11 @@ class VideosControllerTest < ActionDispatch::IntegrationTest
       assert_response :success
 
       video = JSON.parse @response.body
-      video.must_include "title"
-      video.must_include "overview"
-      video.must_include "release_date"
-      video.must_include "inventory"
-      video.must_include "available_inventory"
+      expect(video).must_include "title"
+      expect(video).must_include "overview"
+      expect(video).must_include "release_date"
+      expect(video).must_include "inventory"
+      expect(video).must_include "available_inventory"
     end
 
     it "Returns an error when the video doesn't exist" do
@@ -70,9 +73,8 @@ class VideosControllerTest < ActionDispatch::IntegrationTest
       assert_response :not_found
 
       data = JSON.parse @response.body
-      data.must_include "errors"
-      data["errors"].must_include "title"
-
+      expect(data).must_include "errors"
+      expect(data["errors"]).must_include "title"
     end
   end
 end

@@ -20,11 +20,11 @@ class VideoTest < ActiveSupport::TestCase
     end
 
     it "Has rentals" do
-      @video.must_respond_to :rentals
+      expect(@video).must_respond_to :rentals
     end
 
     it "Has customers" do
-      @video.must_respond_to :customers
+      expect(@video).must_respond_to :customers
     end
   end
 
@@ -33,7 +33,7 @@ class VideoTest < ActiveSupport::TestCase
       # Make sure no videos are checked out
       Rental.destroy_all
       Video.all.each do |video|
-        video.available_inventory().must_equal video.inventory
+        expect(video.available_inventory()).must_equal video.inventory
       end
     end
 
@@ -52,7 +52,7 @@ class VideoTest < ActiveSupport::TestCase
 
       video.reload
       after_ai = video.available_inventory
-      after_ai.must_equal before_ai - 1
+      expect(after_ai).must_equal before_ai - 1
     end
 
     it "Increases when a video is checked in" do
@@ -75,7 +75,7 @@ class VideoTest < ActiveSupport::TestCase
 
       video.reload
       after_ai = video.available_inventory
-      after_ai.must_equal before_ai + 1
+      expect(after_ai).must_equal before_ai + 1
     end
   end
 end

@@ -20,27 +20,27 @@ class RentalTest < ActiveSupport::TestCase
     end
 
     it "Has a customer" do
-      @rental.must_respond_to :customer
+      expect(@rental).must_respond_to :customer
     end
 
     it "Cannot be created without a customer" do
       data = rental_data.clone()
       data.delete :customer
       c = Rental.new(data)
-      c.valid?.must_equal false
-      c.errors.messages.must_include :customer
+      expect(c.valid?).must_equal false
+      expect(c.errors.messages).must_include :customer
     end
 
     it "Has a video" do
-      @rental.must_respond_to :video
+      expect(@rental).must_respond_to :video
     end
 
     it "Cannot be created without a video" do
       data = rental_data.clone
       data.delete :video
       c = Rental.new(data)
-      c.valid?.must_equal false
-      c.errors.messages.must_include :video
+      expect(c.valid?).must_equal false
+      expect(c.errors.messages).must_include :video
     end
   end
 
@@ -49,23 +49,23 @@ class RentalTest < ActiveSupport::TestCase
       data = rental_data.clone
       data.delete :due_date
       c = Rental.new(data)
-      c.valid?.must_equal false
-      c.errors.messages.must_include :due_date
+      expect(c.valid?).must_equal false
+      expect(c.errors.messages).must_include :due_date
     end
 
     it "due_date on a new rental must be in the future" do
       data = rental_data.clone
       data[:due_date] = Date.today - 1
       c = Rental.new(data)
-      c.valid?.must_equal false
-      c.errors.messages.must_include :due_date
+      expect(c.valid?).must_equal false
+      expect(c.errors.messages).must_include :due_date
 
       # Today is also not in the future
       data = rental_data.clone
       data[:due_date] = Date.today
       c = Rental.new(data)
-      c.valid?.must_equal false
-      c.errors.messages.must_include :due_date
+      expect(c.valid?).must_equal false
+      expect(c.errors.messages).must_include :due_date
     end
 
     it "rental with an old due_date can be updated" do
@@ -77,9 +77,14 @@ class RentalTest < ActiveSupport::TestCase
 
   describe "first_outstanding" do
     it "returns the only un-returned rental" do
-      Rental.count.must_equal 1
-      Rental.first.returned.must_equal false
-      Rental.first_outstanding(Rental.first.video, Rental.first.customer).must_equal Rental.first
+      expect(Rental.count).must_equal 1
+      expect(Rental.first.returned).must_equal false
+      expect(
+        Rental.first_outstanding(
+          Rental.first.video,
+          Rental.first.customer
+        )
+      ).must_equal Rental.first
     end
 
     it "returns nil if no rentals are un-returned" do
@@ -87,7 +92,12 @@ class RentalTest < ActiveSupport::TestCase
         rental.returned = true
         rental.save!
       end
-      Rental.first_outstanding(Rental.first.video, Rental.first.customer).must_be_nil
+      expect(
+        Rental.first_outstanding(
+          Rental.first.video,
+          Rental.first.customer
+        )
+      ).must_be_nil
     end
 
     it "prefers rentals with earlier due dates" do
@@ -114,9 +124,11 @@ class RentalTest < ActiveSupport::TestCase
         due_date: Date.today + 20,
         returned: false
       )
-      Rental.first_outstanding(
-        videos(:one),
-        customers(:one)
+      expect(
+        Rental.first_outstanding(
+          videos(:one),
+          customers(:one)
+        )
       ).must_equal first
     end
 
@@ -138,22 +150,24 @@ class RentalTest < ActiveSupport::TestCase
         returned: false
       )
 
-      Rental.first_outstanding(
-        videos(:one),
-        customers(:one)
+      expect(
+        Rental.first_outstanding(
+          videos(:one),
+          customers(:one)
+        )
       ).must_equal outstanding
     end
   end
 
   describe "overdue" do
     it "returns all overdue rentals" do
-      Rental.count.must_equal 1
-      Rental.first.returned.must_equal false
-      Rental.first.due_date.must_be :<, Date.today
+      expect(Rental.count).must_equal 1
+      expect(Rental.first.returned).must_equal false
+      expect(Rental.first.due_date).must_be :<, Date.today
 
       overdue = Rental.overdue
-      overdue.length.must_equal 1
-      overdue.first.must_equal Rental.first
+      expect(overdue.length).must_equal 1
+      expect(overdue.first).must_equal Rental.first
     end
 
     it "ignores rentals that aren't due yet" do
@@ -165,8 +179,8 @@ class RentalTest < ActiveSupport::TestCase
       )
 
       overdue = Rental.overdue
-      overdue.length.must_equal 1
-      overdue.first.must_equal Rental.first
+      expect(overdue.length).must_equal 1
+      expect(overdue.first).must_equal Rental.first
     end
 
     it "ignores rentals that have been returned" do
@@ -178,15 +192,15 @@ class RentalTest < ActiveSupport::TestCase
       ).save!(validate: false)
 
       overdue = Rental.overdue
-      overdue.length.must_equal 1
-      overdue.first.must_equal Rental.first
+      expect(overdue.length).must_equal 1
+      expect(overdue.first).must_equal Rental.first
     end
 
     it "returns an empty array if no rentals are overdue" do
       r = Rental.first
       r.returned = true
       r.save!
-      Rental.overdue.length.must_equal 0
+      expect(Rental.overdue.length).must_equal 0
     end
   end
 end
