@@ -15,29 +15,29 @@ GET /customers
 ```
 List all customers
 
-### Movies
+### Videos
 
 ```
-GET /movies
+GET /videos
 ```
-List all movies in the rental library
+List all videos in the library
 
 ```
-GET /movies?query=<search term>
+GET /videos?query=<search term>
 ```
-Search for movies in the external Movie DB
+Search for videos in the external Movie DB
 
 ```
-GET /movies/:title
+GET /videos/:title
 ```
-Show details for a single movie by `title`
+Show details for a single video by `title`
 
 ### Rentals
 
 ```
 POST /rentals/:title/check-out
 ```
-Check out one of the movie's inventory to the customer. The rental's check-out date should be set to today.
+Check out one of the video's inventory to the customer. The rental's check-out date should be set to today.
 
 ```
 POST /rentals/:title/return
@@ -47,4 +47,4 @@ Check in one of a customer's rentals
 ```
 GET /rentals/overdue
 ```
-List all customers with overdue movies
+List all customers with overdue videos

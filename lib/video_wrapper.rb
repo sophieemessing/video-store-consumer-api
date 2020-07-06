@@ -1,4 +1,4 @@
-class MovieWrapper
+class VideoWrapper
   BASE_URL = "https://api.themoviedb.org/3/"
   KEY = ENV["MOVIEDB_KEY"]
 
@@ -17,10 +17,10 @@ class MovieWrapper
       if response["total_results"] == 0
         return []
       else
-        movies = response["results"].map do |result|
-          self.construct_movie(result)
+        videos = response["results"].map do |result|
+          self.construct_video(result)
         end
-        return movies
+        return videos
       end
     elsif retries_left > 0
       sleep(1.0 / (2 ** retries_left))
@@ -33,8 +33,8 @@ class MovieWrapper
 
   private
 
-  def self.construct_movie(api_result)
-    Movie.new(
+  def self.construct_video(api_result)
+    Video.new(
       title: api_result["title"],
       overview: api_result["overview"],
       release_date: api_result["release_date"],
