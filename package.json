@@ -7,18 +7,18 @@
     "test": "clear; jasmine-node --verbose test/"
   },
   "dependencies": {
-    "body-parser": "~1.13.2",
-    "cookie-parser": "~1.3.5",
-    "debug": "~2.6.9",
-    "express": "~4.13.1",
+    "body-parser": "~1.19.0",
+    "cookie-parser": "~1.4.5",
+    "debug": "~4.3.1",
+    "express": "~4.17.1",
     "jade": "~1.11.0",
-    "morgan": "~1.9.1",
-    "sequelize": "^5.1.0",
-    "serve-favicon": "~2.3.0"
+    "morgan": "~1.10.0",
+    "sequelize": "^6.3.5",
+    "serve-favicon": "~2.5.0"
   },
   "devDependencies": {
-    "jasmine-node": "^1.14.5",
-    "nodemon": "^1.9.2",
-    "request": "^2.72.0"
+    "jasmine-node": "^3.0.0",
+    "nodemon": "^2.0.6",
+    "request": "^2.88.2"
   }
 }
