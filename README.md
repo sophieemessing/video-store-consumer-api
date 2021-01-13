@@ -1,4 +1,5 @@
 # VideoStoreAPI
+
 This Video Store API implementation is based on the Video Store API project that you have previously completed.
 
 ## Set Up Notes
