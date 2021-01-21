@@ -26,8 +26,8 @@ class VideosController < ApplicationController
       @video.title = params[:title]
       @video.overview = params[:overview]
       @video.release_date = params[:release_date]
-      @video.image_url = "https://image.tmdb.org/t/p/w185" + params[:poster_path]
-      @video.external_id = params[:id]
+      @video.image_url = params[:image_url]
+      @video.external_id = params[:external_id]
       @video.inventory = 5
       @video.save
       
